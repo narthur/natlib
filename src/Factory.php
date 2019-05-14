@@ -4,13 +4,10 @@ namespace natlib;
 
 class Factory
 {
-	private $namespace;
 	private $objects = [];
 
-	public function __construct($namespace, ...$objects)
+	public function __construct(...$objects)
 	{
-		$this->namespace = $namespace;
-
 		$this->injectObjects(...$objects);
 	}
 
@@ -28,10 +25,9 @@ class Factory
 	{
 		if (is_a($this, $class)) return $this;
 
-		$qualifiedName = $this->getQualifiedName($class);
-		$dependencies = $this->getDependencies($qualifiedName);
+		$dependencies = $this->getDependencies($class);
 
-		return $this->secureObject($qualifiedName, ...$dependencies);
+		return $this->secureObject($class, ...$dependencies);
 	}
 
 	/**
@@ -41,10 +37,9 @@ class Factory
 	 */
 	public function obtain($class)
 	{
-		$qualifiedName = $this->getQualifiedName($class);
-		$dependencies = $this->getDependencies($qualifiedName);
+		$dependencies = $this->getDependencies($class);
 
-		return $this->obtainObject($qualifiedName, ...$dependencies);
+		return $this->obtainObject($class, ...$dependencies);
 	}
 
 	/**
@@ -54,31 +49,19 @@ class Factory
 	 */
 	public function make($class)
 	{
-		$qualifiedName = $this->getQualifiedName($class);
-		$dependencies = $this->getDependencies($qualifiedName);
+		$dependencies = $this->getDependencies($class);
 
-		return $this->makeObject($qualifiedName, ...$dependencies);
+		return $this->makeObject($class, ...$dependencies);
 	}
 
 	/**
-	 * @param $name
-	 * @return string
-	 */
-	private function getQualifiedName($name)
-	{
-		$isQualified = strpos(trim($name, "\\"), "$this->namespace\\") === 0;
-
-		return $isQualified ? $name : "\\$this->namespace\\$name";
-	}
-
-	/**
-	 * @param $qualifiedName
+	 * @param $class
 	 * @return array
 	 * @throws \ReflectionException
 	 */
-	private function getDependencies($qualifiedName)
+	private function getDependencies($class)
 	{
-		$dependencyNames = $this->getDependencyNames($qualifiedName);
+		$dependencyNames = $this->getDependencyNames($class);
 
 		return array_map([$this, "secure"], $dependencyNames);
 	}
