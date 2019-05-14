@@ -1,5 +1,6 @@
 {
     "name": "narthur/natlib",
+    "description": "Library of oft-used classes and helpers",
     "type": "library",
     "license": "MIT",
     "authors": [
@@ -8,5 +9,12 @@
             "email": "nathan@nathanarthur.com"
         }
     ],
-    "require": {}
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "natlib\\": [
+                "src/"
+            ]
+        }
+    }
 }
