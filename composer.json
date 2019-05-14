@@ -1,0 +1,12 @@
+{
+    "name": "narthur/natlib",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Nathan Arthur",
+            "email": "nathan@nathanarthur.com"
+        }
+    ],
+    "require": {}
+}
