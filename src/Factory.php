@@ -27,7 +27,8 @@ class Factory
 
 		$dependencies = $this->getDependencies($class);
 
-		return $this->secureObject($class, ...$dependencies);
+		return $this->getSavedObject($class) ?:
+			$this->objects[] = new $class(...$dependencies);
 	}
 
 	/**
@@ -39,7 +40,8 @@ class Factory
 	{
 		$dependencies = $this->getDependencies($class);
 
-		return $this->obtainObject($class, ...$dependencies);
+		return $this->getSavedObject($class) ?:
+			new $class(...$dependencies);
 	}
 
 	/**
@@ -51,7 +53,7 @@ class Factory
 	{
 		$dependencies = $this->getDependencies($class);
 
-		return $this->makeObject($class, ...$dependencies);
+		return new $class(...$dependencies);
 	}
 
 	/**
@@ -80,38 +82,6 @@ class Factory
 		return array_map(function (\ReflectionParameter $param) {
 			return $param->getClass()->getName();
 		}, $params);
-	}
-
-	/**
-	 * @param string $class
-	 * @param array ...$dependencies
-	 * @return mixed
-	 */
-	private function secureObject($class, ...$dependencies)
-	{
-		return $this->getSavedObject($class) ?:
-			$this->objects[] = new $class(...$dependencies);
-	}
-
-	/**
-	 * @param string $class
-	 * @param array ...$dependencies
-	 * @return mixed
-	 */
-	private function obtainObject($class, ...$dependencies)
-	{
-		return $this->getSavedObject($class) ?:
-			new $class(...$dependencies);
-	}
-
-	/**
-	 * @param string $class
-	 * @param array ...$dependencies
-	 * @return mixed
-	 */
-	private function makeObject($class, ...$dependencies)
-	{
-		return new $class(...$dependencies);
 	}
 
 	/**
