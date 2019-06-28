@@ -2,6 +2,8 @@
 
 namespace natlib;
 
+define("STUB_NULL", "natlib_stub_null");
+
 trait Stub
 {
 	private $calls = [];
