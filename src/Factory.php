@@ -2,6 +2,8 @@
 
 namespace natlib;
 
+use ReflectionException;
+
 class Factory
 {
 	private $objects = [];
@@ -19,7 +21,7 @@ class Factory
 	/**
 	 * @param $class
 	 * @return mixed
-	 * @throws \ReflectionException
+	 * @throws ReflectionException
 	 */
 	public function secure($class)
 	{
@@ -34,7 +36,7 @@ class Factory
 	/**
 	 * @param $class
 	 * @return mixed
-	 * @throws \ReflectionException
+	 * @throws ReflectionException
 	 */
 	public function obtain($class)
 	{
@@ -47,7 +49,7 @@ class Factory
 	/**
 	 * @param $class
 	 * @return mixed
-	 * @throws \ReflectionException
+	 * @throws ReflectionException
 	 */
 	public function make($class)
 	{
@@ -59,7 +61,7 @@ class Factory
 	/**
 	 * @param $class
 	 * @return array
-	 * @throws \ReflectionException
+	 * @throws ReflectionException
 	 */
 	private function getDependencies($class)
 	{
@@ -71,7 +73,7 @@ class Factory
 	/**
 	 * @param $className
 	 * @return array|mixed
-	 * @throws \ReflectionException
+	 * @throws ReflectionException
 	 */
 	private function getDependencyNames($className)
 	{

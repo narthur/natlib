@@ -181,6 +181,8 @@ trait Stub
 	 */
 	public function assertMethodCalled($method)
 	{
+		$this->assertMethodExists($method);
+
 		$this->testCase->assertTrue(
 			$this->wasMethodCalled($method),
 			"Failed asserting that '$method' was called"
@@ -195,6 +197,8 @@ trait Stub
 	 */
 	public function assertMethodNotCalled($method)
 	{
+		$this->assertMethodExists($method);
+
 		$this->testCase->assertFalse(
 			$this->wasMethodCalled($method),
 			"Failed asserting that '$method' was not called"
@@ -205,20 +209,13 @@ trait Stub
 
 	/**
 	 * @param string $method
-	 * @return bool
-	 */
-	public function wasMethodCalled($method)
-	{
-		return !empty($this->getCalls($method));
-	}
-
-	/**
-	 * @param string $method
 	 * @param mixed ...$args
 	 * @return Stub
 	 */
 	public function assertMethodCalledWith($method, ...$args)
 	{
+		$this->assertMethodExists($method);
+
 		$message = "Failed asserting that '$method' was called with specified args";
 
 		$condition = $this->wasMethodCalledWith($method, ...$args);
@@ -245,6 +242,8 @@ trait Stub
 	 */
 	public function assertMethodNotCalledWith($method, ...$args)
 	{
+		$this->assertMethodExists($method);
+
 		$message = "Failed asserting that '$method' was not called with specified args";
 
 		$condition = $this->wasMethodCalledWith($method, ...$args);
@@ -264,18 +263,10 @@ trait Stub
 		return $this;
 	}
 
-	/**
-	 * @param string $method
-	 * @param mixed ...$args
-	 * @return bool
-	 */
-	public function wasMethodCalledWith($method, ...$args)
-	{
-		return in_array($args, $this->getCalls($method));
-	}
-
 	public function assertAnyCallMatches($method, callable $callable, $message = false)
 	{
+		$this->assertMethodExists($method);
+
 		$calls = $this->getCalls($method);
 		$bool = (bool) array_filter($calls, $callable);
 		$error = $message ?: "Failed asserting any call matches callback.";
@@ -291,6 +282,8 @@ trait Stub
 
 	public function assertNoCallsMatch($method, callable $callable, $message = false)
 	{
+		$this->assertMethodExists($method);
+
 		$calls = $this->getCalls($method);
 		$bool = (bool) array_filter($calls, $callable);
 		$error = $message ?: "Failed asserting no call matches callback.";
@@ -311,6 +304,8 @@ trait Stub
 	 */
 	public function assertCallsContain($method, $needle)
 	{
+		$this->assertMethodExists($method);
+
 		$message = "Failed asserting that '$needle' is in haystack: \r\n" .
 			$this->getCallHaystack($method);
 
@@ -320,6 +315,45 @@ trait Stub
 		);
 
 		return $this;
+	}
+
+	public function assertCallCount($method, $count)
+	{
+		$this->assertMethodExists($method);
+
+		$this->testCase->assertCount($count, $this->getCalls($method));
+
+		return $this;
+	}
+
+	public function assertMethodExists($method)
+	{
+		$class = get_class($this);
+		$method_exists = method_exists($this, $method);
+		$magic_method_exists = method_exists($this, "__call");
+		$handler_exists = $method_exists || $magic_method_exists;
+		$error = "Method `$method` does not exist in object of type `$class`";
+
+		$this->testCase->assertTrue($handler_exists, $error);
+	}
+
+	/**
+	 * @param string $method
+	 * @return bool
+	 */
+	public function wasMethodCalled($method)
+	{
+		return !empty($this->getCalls($method));
+	}
+
+	/**
+	 * @param string $method
+	 * @param mixed ...$args
+	 * @return bool
+	 */
+	public function wasMethodCalledWith($method, ...$args)
+	{
+		return in_array($args, $this->getCalls($method));
 	}
 
 	/**
@@ -332,13 +366,6 @@ trait Stub
 		$haystack = $this->getCallHaystack($method);
 
 		return strpos($haystack, $needle) !== false;
-	}
-
-	public function assertCallCount($method, $count)
-	{
-		$this->testCase->assertCount($count, $this->getCalls($method));
-
-		return $this;
 	}
 
 	/**
