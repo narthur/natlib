@@ -397,9 +397,11 @@ trait Stub
 		$this->safeDump($haystack);
 	}
 
-	public static function safeDump($content)
+	public static function safeDump(...$contents)
 	{
-		var_dump(self::sanitizeDumpContent($content));
+		array_walk($contents, function($content) {
+			var_dump(self::sanitizeDumpContent($content));
+		});
 	}
 
 	public static function sanitizeDumpContent($content)
