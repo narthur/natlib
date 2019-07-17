@@ -319,6 +319,21 @@ trait Stub
 		return $this;
 	}
 
+	public function assertNoCallsContain($method, $needle)
+	{
+		$this->assertMethodExists($method);
+
+		$message = "Failed asserting that '$needle' is not in haystack: \r\n" .
+			$this->getCallHaystack($method);
+
+		$this->testCase->assertFalse(
+			$this->doCallsContain($method, $needle),
+			$message
+		);
+
+		return $this;
+	}
+
 	public function assertCallCount($method, $count)
 	{
 		$this->assertMethodExists($method);
@@ -376,7 +391,10 @@ trait Stub
 	 */
 	private function getCallHaystack($method)
 	{
-		return stripslashes(var_export($this->getCalls($method), true));
+		$calls = $this->getCalls($method);
+		$safeCalls = $this::sanitizeDumpContent($calls);
+
+		return stripslashes(var_export($safeCalls, true));
 	}
 
 	/**
