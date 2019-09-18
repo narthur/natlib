@@ -10,12 +10,12 @@ class Factory
 
 	public function __construct(...$objects)
 	{
-		$this->injectObjects(...$objects);
+		$this->injectObjects($this, ...$objects);
 	}
 
 	public function injectObjects(...$objects)
 	{
-		$this->objects = array_merge($this->objects, $objects);
+		array_map([$this, 'cache'], $objects);
 	}
 
 	/**
@@ -25,25 +25,8 @@ class Factory
 	 */
 	public function secure($class)
 	{
-		if (is_a($this, $class)) return $this;
-
-		$dependencies = $this->getDependencies($class);
-
-		return $this->getSavedObject($class) ?:
-			$this->objects[] = new $class(...$dependencies);
-	}
-
-	/**
-	 * @param $class
-	 * @return mixed
-	 * @throws ReflectionException
-	 */
-	public function obtain($class)
-	{
-		$dependencies = $this->getDependencies($class);
-
-		return $this->getSavedObject($class) ?:
-			new $class(...$dependencies);
+		return $this->getSavedObject($class)
+            ?: $this->cache($this->make($class), $class);
 	}
 
 	/**
@@ -87,15 +70,26 @@ class Factory
 	}
 
 	/**
+     * Aggressive caching allows us to avoid expensive identity-based lookups
+     */
+    private function cache($object, $class = null)
+    {
+        $class = $class ?? get_class($object);
+        $parentClass = get_parent_class($class);
+
+        if ($parentClass) {
+            $this->cache($object, $parentClass);
+        }
+
+        return $this->objects[$class] = $object;
+    }
+
+	/**
 	 * @param $class
 	 * @return mixed
 	 */
 	private function getSavedObject($class)
 	{
-		$matchingObjects = array_filter($this->objects, function($object) use($class) {
-			return is_a($object, $class);
-		});
-
-		return end($matchingObjects);
+	    return $this->objects[$class] ?? null;
 	}
 }
