@@ -36,9 +36,20 @@ class Factory
      */
     public function make($class)
     {
+        if ($this->isAbstract($class)) {
+            throw new \Exception("Cannot instantiate abstract class $class");
+        }
+
         $dependencies = $this->getDependencies($class);
 
         return new $class(...$dependencies);
+    }
+
+    private function isAbstract($class)
+    {
+        $reflection = new \ReflectionClass($class);
+
+        return $reflection->isAbstract();
     }
 
     /**
