@@ -343,6 +343,18 @@ trait Stub
 		return $this;
 	}
 
+    public function assertMatchingCallCount($method, $count, callable $filter)
+    {
+        $this->assertMethodExists($method);
+
+        $calls = $this->getCalls($method);
+        $matches = array_filter($calls, $filter);
+
+        $this->testCase->assertCount($count, $matches);
+
+        return $this;
+    }
+
 	public function assertMethodExists($method)
 	{
 		$class = get_class($this);
